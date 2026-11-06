@@ -52,10 +52,18 @@ private:
     ArmNode* wristNode = nullptr;
     ArmNode* leftClawNode = nullptr;
     ArmNode* rightClawNode = nullptr;
+    ArmNode* leftStemNode = nullptr;
+    ArmNode* rightStemNode = nullptr;
+
+    ArmNode* leftFingerJointNode = nullptr;
+    ArmNode* rightFingerJointNode = nullptr;
+
+    ArmNode* leftFingerNode = nullptr;
+    ArmNode* rightFingerNode = nullptr;
 
     // Link dimensions
     float baseHeight = 0.70f;
-    float baseRadius = 0.50f;
+    float baseRadius = 1.10f;
 
     float shoulderRadius = 0.24f;
 
@@ -69,15 +77,21 @@ private:
 
     float wristRadius = 0.17f;
 
-    float handLength = 0.55f;
-    float handWidth = 0.50f;
-    float handDepth = 0.30f;
+    float palmLength = 0.82f;
+    float palmWidth = 0.36f;
+    float palmHeight = 0.68f;
 
-    float clawLength = 0.70f;
-    float clawWidth = 0.13f;
-    float clawDepth = 0.18f;
+    float stemLength = 0.58f;
+    float stemWidth = 0.09f;
+    float stemHeight = 0.09f;
 
-    float clawSpacing = 0.19f;
+    float fingerJointRadius = 0.06f;
+
+    float fingerLength = 0.80f;
+    float fingerWidth = 0.085f;
+    float fingerThickness = 0.07f;
+
+    float stemSpacing = 0.19f;
 
     std::string sideTexturePath;
     std::string capTexturePath;
