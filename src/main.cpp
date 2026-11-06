@@ -97,15 +97,35 @@ int main(int argc, char* argv[])
             material
         );
 
-        robot.gripperAngle = glm::radians(30.0f); //TMP TO TEST
+        robot.gripperAngle = glm::radians(0.0f); //TMP TO TEST
 
-        constexpr float fieldOfView = glm::radians(45.0f);
-        const glm::vec3 cameraPosition(7.0f, 5.0f, 9.0f);
-        const glm::vec3 cameraTarget(0.0f, 2.5f, 0.0f);
+        constexpr float fieldOfView = glm::radians(55.0f);
+
+        // Aim near the middle of the arm assembly.
+        const glm::vec3 cameraTarget(0.0f, 3.2f, 0.0f);
+
+        // Viewing direction.
+        const glm::vec3 cameraDirection = glm::normalize(
+            glm::vec3(7.0f, 4.0f, 9.0f)
+        );
+
+        // Fixed camera distance.
+        constexpr float cameraDistance = 14.5f;
+
+        const glm::vec3 cameraPosition =
+            cameraTarget + cameraDirection * cameraDistance;
+
         const glm::vec3 worldUp(0.0f, 1.0f, 0.0f);
 
-        const glm::mat4 view = glm::lookAt(cameraPosition, cameraTarget, worldUp);
+        const glm::mat4 view = glm::lookAt(
+            cameraPosition,
+            cameraTarget,
+            worldUp
+        );
+
+
         sf::Clock frameClock;
+
         const float rotationSpeed = glm::radians(30.0f);
 
         while (window.isOpen()) {
@@ -189,21 +209,56 @@ int main(int argc, char* argv[])
                 robot.gripperAngle -= rotationSpeed * dt;
             }
 
+
+            constexpr float maxJointPitch = glm::radians(75.0f);
+            constexpr float maxGripperAngle = glm::radians(7.0f);
+            constexpr float minGripperAngle = glm::radians(-7.0f);
+
+            // Shoulder: keep the upper arm above horizontal.
+            robot.shoulderAngle = std::clamp(
+                robot.shoulderAngle,
+                -maxJointPitch,
+                maxJointPitch
+            );
+
+            // Elbow: constrain the forearm's absolute pitch.
+            robot.elbowAngle = std::clamp(
+                robot.elbowAngle,
+                -maxJointPitch,
+                maxJointPitch
+            );
+
+            // Wrist: constrain the palm's absolute pitch.
+            robot.wristAngle = std::clamp(
+                robot.wristAngle,
+                -maxJointPitch,
+                maxJointPitch
+            );
+
+            // Gripper: allow opening from -15 to 30 degrees.
+            robot.gripperAngle = std::clamp(
+            robot.gripperAngle,
+            minGripperAngle,
+            maxGripperAngle
+        );
+
             robot.update(dt);
 
             const sf::Vector2u size = window.getSize();
 
+            if (size.x == 0 || size.y == 0) {
+                continue;
+            }
+
             const float aspectRatio =
-                size.y == 0
-                    ? 1.0f
-                    : static_cast<float>(size.x) /
-                      static_cast<float>(size.y);
+                static_cast<float>(size.x) /
+                static_cast<float>(size.y);
 
             const glm::mat4 projection = glm::perspective(
                 fieldOfView,
                 aspectRatio,
                 0.1f,
-                100.0f
+                50.0f
             );
 
 
