@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "mesh.h"
+#include "../graphics/mesh.h"
 
 struct CylinderGeometry {
     // By separating the indeces of each face, we can assign them to different meshes with different materials and shaders.

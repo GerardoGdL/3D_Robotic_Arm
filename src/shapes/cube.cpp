@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "mesh.h"
+#include "../graphics/mesh.h"
 
 namespace {
 struct CubeGeometry {

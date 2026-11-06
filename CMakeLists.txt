@@ -35,23 +35,23 @@ FetchContent_MakeAvailable(stb)
 find_package(OpenGL REQUIRED)
 
 add_executable(sphere
-  src/sphere.cpp
-  src/mesh.cpp
-  src/shader.cpp
+  src/shapes/sphere.cpp
+  src/graphics/mesh.cpp
+  src/graphics/shader.cpp
   src/opengl_loader.cpp
 )
 
 add_executable(cube
-  src/cube.cpp
-  src/mesh.cpp
-  src/shader.cpp
+  src/shapes/cube.cpp
+  src/graphics/mesh.cpp
+  src/graphics/shader.cpp
   src/opengl_loader.cpp
 )
 
 add_executable(cylinder
-  src/cylinder.cpp
-  src/mesh.cpp
-  src/shader.cpp
+  src/shapes/cylinder.cpp
+  src/graphics/mesh.cpp
+  src/graphics/shader.cpp
   src/opengl_loader.cpp
 )
 
