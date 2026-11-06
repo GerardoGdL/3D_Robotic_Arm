@@ -97,6 +97,8 @@ int main(int argc, char* argv[])
             material
         );
 
+        robot.gripperAngle = glm::radians(30.0f); //TMP TO TEST
+
         constexpr float fieldOfView = glm::radians(45.0f);
         const glm::vec3 cameraPosition(7.0f, 5.0f, 9.0f);
         const glm::vec3 cameraTarget(0.0f, 2.5f, 0.0f);

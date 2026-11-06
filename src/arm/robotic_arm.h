@@ -50,6 +50,8 @@ private:
     ArmNode* shoulderNode = nullptr;
     ArmNode* elbowNode = nullptr;
     ArmNode* wristNode = nullptr;
+    ArmNode* leftClawNode = nullptr;
+    ArmNode* rightClawNode = nullptr;
 
     // Link dimensions
     float baseHeight = 0.70f;
@@ -66,6 +68,16 @@ private:
     float forearmRadius = 0.17f;
 
     float wristRadius = 0.17f;
+
+    float handLength = 0.55f;
+    float handWidth = 0.50f;
+    float handDepth = 0.30f;
+
+    float clawLength = 0.70f;
+    float clawWidth = 0.13f;
+    float clawDepth = 0.18f;
+
+    float clawSpacing = 0.19f;
 
     std::string sideTexturePath;
     std::string capTexturePath;

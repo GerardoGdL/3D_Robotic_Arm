@@ -61,6 +61,16 @@ void RoboticArm::buildArm() {
         std::make_unique<ArmNode>()
     );
 
+    // LEFT CLAW
+    leftClawNode = &handNode.addChild(
+        std::make_unique<ArmNode>()
+    );
+
+    // RIGHT CLAW
+    rightClawNode = &handNode.addChild(
+        std::make_unique<ArmNode>()
+    );
+
 
     CylinderGeometry base = makeCylinder(
         32,
@@ -99,6 +109,21 @@ void RoboticArm::buildArm() {
     elbowNode->meshes.push_back(&jointMesh);
     wristNode->meshes.push_back(&jointMesh);
 
+    CubeGeometry cube = makeCube();
+
+    // Reuse one cube mesh for the hand and both claws.
+    Mesh& gripperMesh = createMesh(
+        cube.vertices,
+        cube.indices,
+        jointTexturePath
+    );
+
+    // Attach the mesh to all three nodes.
+    handNode.meshes.push_back(&gripperMesh);
+
+    leftClawNode->meshes.push_back(&gripperMesh);
+    rightClawNode->meshes.push_back(&gripperMesh);
+
     // --------------------------------
     // Geometry offsets
     // --------------------------------
@@ -136,7 +161,50 @@ void RoboticArm::buildArm() {
         glm::vec3(wristRadius)
     );
 
-    handNode.geometryTransform = glm::mat4(1.0f);
+    // --------------------------------
+    // HAND / PALM
+    // --------------------------------
+
+    handNode.geometryTransform =
+        glm::translate(
+            glm::mat4(1.0f),
+            glm::vec3(0.0f, handLength / 2.0f, 0.0f)
+        )
+        *
+        glm::scale(
+            glm::mat4(1.0f),
+            glm::vec3(handWidth, handLength, handDepth)
+        );
+
+    // --------------------------------
+    // LEFT CLAW
+    // --------------------------------
+
+    leftClawNode->geometryTransform =
+        glm::translate(
+            glm::mat4(1.0f),
+            glm::vec3(0.0f, clawLength / 2.0f, 0.0f)
+        )
+        *
+        glm::scale(
+            glm::mat4(1.0f),
+            glm::vec3(clawWidth, clawLength, clawDepth)
+        );
+
+    // --------------------------------
+    // RIGHT CLAW
+    // --------------------------------
+
+    rightClawNode->geometryTransform =
+        glm::translate(
+            glm::mat4(1.0f),
+            glm::vec3(0.0f, clawLength / 2.0f, 0.0f)
+        )
+        *
+        glm::scale(
+            glm::mat4(1.0f),
+            glm::vec3(clawWidth, clawLength, clawDepth)
+        );
 }
 
 void RoboticArm::updateTransforms() {
@@ -207,6 +275,36 @@ void RoboticArm::updateTransforms() {
 
     wristNode->localTransform =
         wristTranslation * wristRotation;
+
+    // --------------------------------
+    // GRIPPER CLAWS
+    // --------------------------------
+
+    // Left claw: rotates outward in the positive Z direction.
+    leftClawNode->localTransform =
+        glm::translate(
+            glm::mat4(1.0f),
+            glm::vec3(-clawSpacing, handLength, 0.0f)
+        )
+        *
+        glm::rotate(
+            glm::mat4(1.0f),
+            gripperAngle,
+            glm::vec3(0.0f, 0.0f, 1.0f)
+        );
+
+    // Right claw: rotates outward in the negative Z direction.
+    rightClawNode->localTransform =
+        glm::translate(
+            glm::mat4(1.0f),
+            glm::vec3(clawSpacing, handLength, 0.0f)
+        )
+        *
+        glm::rotate(
+            glm::mat4(1.0f),
+            -gripperAngle,
+            glm::vec3(0.0f, 0.0f, 1.0f)
+        );
 }
 
 void RoboticArm::draw(
