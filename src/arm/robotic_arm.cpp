@@ -363,13 +363,13 @@ void RoboticArm::updateTransforms() {
     leftStemNode->localTransform =
         glm::translate(
             glm::mat4(1.0f),
-            glm::vec3(-stemOffset, palmLength, 0.0f)
+            glm::vec3(0.0f, palmLength, -stemOffset)
         );
 
     rightStemNode->localTransform =
         glm::translate(
             glm::mat4(1.0f),
-            glm::vec3(stemOffset, palmLength, 0.0f)
+            glm::vec3(0.0f, palmLength, stemOffset)
         );
 
     // --------------------------------
@@ -380,24 +380,22 @@ void RoboticArm::updateTransforms() {
         glm::translate(
             glm::mat4(1.0f),
             glm::vec3(0.0f, stemLength, 0.0f)
-        )
-        *
+        ) *
         glm::rotate(
             glm::mat4(1.0f),
-            gripperAngle,
-            glm::vec3(0.0f, 0.0f, 1.0f)
+            -gripperAngle,
+            glm::vec3(1.0f, 0.0f, 0.0f)
         );
 
     rightFingerJointNode->localTransform =
         glm::translate(
             glm::mat4(1.0f),
             glm::vec3(0.0f, stemLength, 0.0f)
-        )
-        *
+        ) *
         glm::rotate(
             glm::mat4(1.0f),
-            -gripperAngle,
-            glm::vec3(0.0f, 0.0f, 1.0f)
+            gripperAngle,
+            glm::vec3(1.0f, 0.0f, 0.0f)
         );
 }
 
