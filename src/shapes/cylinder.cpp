@@ -1,40 +1,10 @@
-#include <glad/gl.h> // Must be first!
-#include <SFML/Window.hpp>
-#include <SFML/System/Clock.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <algorithm>
 #include <cmath>
-#include <exception>
-#include <filesystem>
-#include <iostream>
-#include <optional>
-#include <stdexcept>
-#include <string>
 #include <vector>
 
 #include "../graphics/mesh.h"
-
-struct CylinderGeometry {
-    // By separating the indeces of each face, we can assign them to different meshes with different materials and shaders.
-    std::vector<Vertex> sideVertices;
-    std::vector<unsigned int> sideIndices;
-
-    std::vector<Vertex> topVertices;
-    std::vector<unsigned int> topIndices;
-
-    std::vector<Vertex> bottomVertices;
-    std::vector<unsigned int> bottomIndices;
-    float height;
-    float radius;
-};
-
-void rotate(Mesh& mesh, float radians)
-{
-    mesh.applyTransform(glm::rotate(glm::mat4(1.0f),
-                                    radians,
-                                    glm::vec3(0.0f, 1.0f, 0.0f)));
-};
+#include "cylinder.h"
 
 CylinderGeometry makeCylinder(unsigned int slices, float height, float radius)
 {
@@ -167,136 +137,9 @@ CylinderGeometry makeCylinder(unsigned int slices, float height, float radius)
     return cylinder;
 }
 
-int main(int argc, char* argv[])
+void rotate(Mesh& mesh, float radians)
 {
-    if (argc != 3) {
-        std::cerr << "Usage: cylinder <cap-texture> <side-texture>\n";
-        return 2;
-    }
-
-    try {
-        sf::ContextSettings settings;
-        settings.majorVersion = 4;
-        settings.minorVersion = 0;
-        settings.attributeFlags = sf::ContextSettings::Core;
-        settings.depthBits = 24;
-
-        sf::Window window(sf::VideoMode({800, 800}),
-                          "Textured cylinder",
-                          sf::Style::Default,
-                          sf::State::Windowed,
-                          settings);
-
-        const sf::ContextSettings actualSettings = window.getSettings();
-        if (actualSettings.majorVersion < 4) {
-            throw std::runtime_error("OpenGL 4.0 Core is required, but the created context is " +
-                                     std::to_string(actualSettings.majorVersion) + "." +
-                                     std::to_string(actualSettings.minorVersion));
-        }
-
-        if (!gladLoadGL(sf::Context::getFunction)) {
-            std::cerr << "Failed to initialize GLAD" << std::endl;
-            return 1;
-        }
-
-        glEnable(GL_DEPTH_TEST);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
-        CylinderGeometry cylinder = makeCylinder(16, 0.7, 0.5f);
-        const std::filesystem::path shaderDirectory =
-            std::filesystem::absolute(argv[0]).parent_path() / "shaders";
-        Material material;
-        material.lightingEnabled = false;
-        Mesh sideMesh(cylinder.sideVertices,
-                      cylinder.sideIndices,
-                      (shaderDirectory / "mesh.vert").string(),
-                      (shaderDirectory / "mesh.frag").string(),
-                      argv[2],
-                      material);
-
-        Mesh topMesh(cylinder.topVertices,
-                     cylinder.topIndices,
-                     (shaderDirectory / "mesh.vert").string(),
-                     (shaderDirectory / "mesh.frag").string(),
-                     argv[1],
-                     material);
-
-        Mesh bottomMesh(cylinder.bottomVertices,
-                        cylinder.bottomIndices,
-                        (shaderDirectory / "mesh.vert").string(),
-                        (shaderDirectory / "mesh.frag").string(),
-                        argv[1],
-                        material);
-
-        constexpr float fieldOfView = glm::radians(45.0f);
-        const glm::vec3 cameraTarget(0.0f, 0.0f, 0.0f);
-        const float cylinderRadius = 0.7f;
-        const glm::vec3 worldUp(0.0f, 1.0f, 0.0f);
-        sf::Clock frameClock;
-        const float rotationSpeed = glm::radians(30.0f);
-
-        while (window.isOpen()) {
-            while (const std::optional event = window.pollEvent()) {
-                if (event->is<sf::Event::Closed>()) {
-                    window.close();
-                } else if (const auto* resized = event->getIf<sf::Event::Resized>()) {
-                    glViewport(0,
-                               0,
-                               static_cast<GLsizei>(resized->size.x),
-                               static_cast<GLsizei>(resized->size.y));
-                } else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-                    if (keyPressed->code == sf::Keyboard::Key::Left) {
-                        rotate(sideMesh, glm::radians(5.0f));
-                        rotate(topMesh, glm::radians(5.0f));
-                        rotate(bottomMesh, glm::radians(5.0f));
-                    } else if (keyPressed->code == sf::Keyboard::Key::Right) {
-                        rotate(sideMesh, glm::radians(-5.0f));
-                        rotate(topMesh, glm::radians(-5.0f));
-                        rotate(bottomMesh, glm::radians(-5.0f));
-                    } else if (keyPressed->code == sf::Keyboard::Key::Escape) {
-                        window.close();
-                    }
-                }
-            }
-
-            if (!window.isOpen()) {
-                break;
-            }
-
-            const float dt = frameClock.restart().asSeconds();
-            rotate(sideMesh, rotationSpeed * dt);
-            rotate(topMesh, rotationSpeed * dt);
-            rotate(bottomMesh, rotationSpeed * dt);
-
-            const sf::Vector2u size = window.getSize();
-            glViewport(0, 0, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y));
-            const float aspectRatio = size.x == 0 || size.y == 0
-                ? 1.0f
-                : static_cast<float>(size.x) / static_cast<float>(size.y);
-            const float limitingAspect = std::min(aspectRatio, 1.0f);
-            const float limitingHalfFov = std::atan(
-                std::tan(fieldOfView * 0.5f) * limitingAspect);
-            const float cameraDistance = cylinderRadius / std::sin(limitingHalfFov) * 1.1f;
-            const glm::mat4 view = glm::lookAt(cameraTarget + glm::vec3(0.0f,
-                                                                        0.0f,
-                                                                        cameraDistance),
-                                               cameraTarget,
-                                               worldUp);
-            const glm::mat4 projection = glm::perspective(fieldOfView,
-                                                           aspectRatio,
-                                                           0.1f,
-                                                           cameraDistance + cylinderRadius * 2.0f);
-
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            sideMesh.draw(view, projection);
-            topMesh.draw(view, projection);
-            bottomMesh.draw(view, projection);
-            window.display();
-        }
-    } catch (const std::exception& error) {
-        std::cerr << "Application failed: " << error.what() << std::endl;
-        return 1;
-    }
-
-    return 0;
-}
+    mesh.applyTransform(glm::rotate(glm::mat4(1.0f),
+                                    radians,
+                                    glm::vec3(0.0f, 1.0f, 0.0f)));
+};
