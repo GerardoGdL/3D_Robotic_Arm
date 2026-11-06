@@ -212,3 +212,37 @@ void Mesh::draw(const glm::mat4& view, const glm::mat4& projection) const
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+// This is our new draw function allowing for transformations
+void Mesh::draw(const glm::mat4& view, const glm::mat4& projection, const glm::mat4& modelTransform) const 
+{
+    shader.use();
+    shader.setMatrix4("model", modelTransform); // This is the only line changed from the previous draw function
+    shader.setMatrix4("view", view);
+    shader.setMatrix4("projection", projection);
+    shader.setVector3("materialAmbient", material.ambient);
+    shader.setVector3("materialDiffuse", material.diffuse);
+    shader.setVector3("materialSpecular", material.specular);
+    shader.setFloat("materialShininess", material.shininess);
+    shader.setInt("useLighting", material.lightingEnabled ? 1 : 0);
+    shader.setInt("useTexture", texture == 0 ? 0 : 1);
+    shader.setInt("diffuseTexture", 0);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindVertexArray(vertexArray);
+    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void rotate(Mesh& mesh, float radians)
+{
+    mesh.applyTransform(
+        glm::rotate(
+            glm::mat4(1.0f),
+            radians,
+            glm::vec3(0.0f, 1.0f, 0.0f)
+        )
+    );
+}

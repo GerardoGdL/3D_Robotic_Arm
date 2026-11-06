@@ -59,6 +59,15 @@ public:
     // The shader must provide the attributes and uniforms used by mesh.vert/frag.
     void draw(const glm::mat4& view, const glm::mat4& projection) const;
 
+    // Draw using the model transform supplied by the caller. This is to allow a hierarchical transformation tree
+    void draw(
+        const glm::mat4& view,
+        const glm::mat4& projection,
+        const glm::mat4& modelTransform
+    ) const;
+
+    void rotate(Mesh& mesh, float radians);
+
 private:
     Shader shader;
     Material material;
