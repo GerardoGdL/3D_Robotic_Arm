@@ -82,8 +82,7 @@ private:
     float palmHeight = 0.68f;
 
     float stemLength = 0.58f;
-    float stemWidth = 0.09f;
-    float stemHeight = 0.09f;
+    float stemRadius = 0.045f;
 
     float fingerJointRadius = 0.06f;
 

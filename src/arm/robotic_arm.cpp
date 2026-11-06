@@ -91,7 +91,7 @@ void RoboticArm::buildArm() {
         std::make_unique<ArmNode>()
     );
 
-
+    // Base
     CylinderGeometry base = makeCylinder(
         16,
         baseHeight,
@@ -100,6 +100,7 @@ void RoboticArm::buildArm() {
 
     attachCylinder(*root, base);
 
+    // Upper arm
     CylinderGeometry upperArm = makeCylinder(
         32,
         upperArmLength,
@@ -108,6 +109,7 @@ void RoboticArm::buildArm() {
 
     attachCylinder(upperArmNode, upperArm);
 
+    // Forearm
     CylinderGeometry forearm = makeCylinder(
         32,
         forearmLength,
@@ -141,10 +143,6 @@ void RoboticArm::buildArm() {
     // Palm
     palmNode.meshes.push_back(&gripperMesh);
 
-    // Fixed stems
-    leftStemNode->meshes.push_back(&gripperMesh);
-    rightStemNode->meshes.push_back(&gripperMesh);
-
     // Rotating fingers
     leftFingerNode->meshes.push_back(&gripperMesh);
     rightFingerNode->meshes.push_back(&gripperMesh);
@@ -152,6 +150,44 @@ void RoboticArm::buildArm() {
     // --------------------------------
     // Geometry offsets
     // --------------------------------
+
+    // --------------------------------
+    // FIXED STEM CYLINDERS
+    // --------------------------------
+
+    CylinderGeometry stem = makeCylinder(
+        16,
+        stemLength,
+        stemRadius
+    );
+
+    // Create the cylinder meshes without textures.
+    Mesh& stemSideMesh = createMesh(
+        stem.sideVertices,
+        stem.sideIndices,
+        ""
+    );
+
+    Mesh& stemTopMesh = createMesh(
+        stem.topVertices,
+        stem.topIndices,
+        ""
+    );
+
+    Mesh& stemBottomMesh = createMesh(
+        stem.bottomVertices,
+        stem.bottomIndices,
+        ""
+    );
+
+    // Attach the same cylinder meshes to both fixed stems.
+    leftStemNode->meshes.push_back(&stemSideMesh);
+    leftStemNode->meshes.push_back(&stemTopMesh);
+    leftStemNode->meshes.push_back(&stemBottomMesh);
+
+    rightStemNode->meshes.push_back(&stemSideMesh);
+    rightStemNode->meshes.push_back(&stemTopMesh);
+    rightStemNode->meshes.push_back(&stemBottomMesh);
 
     // Base cylinder is centered at its origin.
     root->geometryTransform = glm::mat4(1.0f);
@@ -208,33 +244,14 @@ void RoboticArm::buildArm() {
     // FIXED STEMS
     // --------------------------------
 
-    leftStemNode->geometryTransform =
-        glm::translate(
-            glm::mat4(1.0f),
-            glm::vec3(0.0f, stemLength / 2.0f, 0.0f)
-        ) *
-        glm::scale(
-            glm::mat4(1.0f),
-            glm::vec3(
-                stemWidth / 2.0f,
-                stemLength / 2.0f,
-                stemHeight / 2.0f
-            )
-        );
+    glm::mat4 stemGeometryTransform =
+    glm::translate(
+        glm::mat4(1.0f),
+        glm::vec3(0.0f, stemLength / 2.0f, 0.0f)
+    );
 
-    rightStemNode->geometryTransform =
-        glm::translate(
-            glm::mat4(1.0f),
-            glm::vec3(0.0f, stemLength / 2.0f, 0.0f)
-        ) *
-        glm::scale(
-            glm::mat4(1.0f),
-            glm::vec3(
-                stemWidth / 2.0f,
-                stemLength / 2.0f,
-                stemHeight / 2.0f
-            )
-        );
+    leftStemNode->geometryTransform = stemGeometryTransform;
+    rightStemNode->geometryTransform = stemGeometryTransform;
 
     // --------------------------------
     // FINGER JOINTS
@@ -358,7 +375,7 @@ void RoboticArm::updateTransforms() {
     // FIXED STEM POSITIONS
     // --------------------------------
 
-    float stemOffset = palmWidth / 2.0f - stemWidth / 2.0f;
+    float stemOffset = palmWidth / 2.0f - stemRadius;
 
     leftStemNode->localTransform =
         glm::translate(
