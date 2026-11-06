@@ -34,37 +34,27 @@ FetchContent_MakeAvailable(stb)
 
 find_package(OpenGL REQUIRED)
 
-add_executable(sphere
-  src/shapes/sphere.cpp
-  src/graphics/mesh.cpp
-  src/graphics/shader.cpp
-  src/opengl_loader.cpp
-)
-
-add_executable(cube
-  src/shapes/cube.cpp
-  src/graphics/mesh.cpp
-  src/graphics/shader.cpp
-  src/opengl_loader.cpp
-)
-
-add_executable(cylinder
-  src/shapes/cylinder.cpp
-  src/graphics/mesh.cpp
-  src/graphics/shader.cpp
-  src/opengl_loader.cpp
+add_executable(robotic_arm
+    src/main.cpp
+    src/arm/nodes.cpp
+    src/arm/robotic_arm.cpp
+    src/shapes/sphere.cpp
+    src/shapes/cube.cpp
+    src/shapes/cylinder.cpp
+    src/graphics/mesh.cpp
+    src/graphics/shader.cpp
+    src/opengl_loader.cpp
 )
 
 # Tell compiler where to find gl.h
-foreach(target sphere cube cylinder)
-    target_include_directories(${target} PRIVATE
+    target_include_directories(robotic_arm PRIVATE
         include
         ${stb_SOURCE_DIR}
     )
 
-    target_compile_features(${target} PRIVATE cxx_std_17)
+    target_compile_features(robotic_arm PRIVATE cxx_std_17)
 
-    target_link_libraries(${target}
+    target_link_libraries(robotic_arm
         PRIVATE
             SFML::Window
             SFML::System
@@ -72,16 +62,15 @@ foreach(target sphere cube cylinder)
             OpenGL::GL
     )
 
-    add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${target}>/shaders"
+    add_custom_command(TARGET robotic_arm POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:robotic_arm>/shaders"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_CURRENT_SOURCE_DIR}/src/mesh.vert"
-            "$<TARGET_FILE_DIR:${target}>/shaders/mesh.vert"
+            "$<TARGET_FILE_DIR:robotic_arm>/shaders/mesh.vert"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_CURRENT_SOURCE_DIR}/src/mesh.frag"
-            "$<TARGET_FILE_DIR:${target}>/shaders/mesh.frag"
+            "$<TARGET_FILE_DIR:robotic_arm>/shaders/mesh.frag"
         VERBATIM
     )
-endforeach()
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT cube)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT robotic_arm)
