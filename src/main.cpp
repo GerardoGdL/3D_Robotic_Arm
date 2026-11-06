@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 
         // If no separate joint texture is supplied, reuse the cap texture.
         const std::string jointTexture =
-            argc == 4 ? argv[3] : capTexture;
+            argc == 4 ? argv[3] : "";
 
         Material material;
         material.lightingEnabled = true;
