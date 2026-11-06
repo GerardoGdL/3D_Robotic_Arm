@@ -50,10 +50,3 @@ SphereGeometry makeSphere(unsigned int slices, unsigned int stacks)
 
     return sphere;
 }
-
-void rotate(Mesh& mesh, float radians)
-{
-    mesh.applyTransform(glm::rotate(glm::mat4(1.0f),
-                                    radians,
-                                    glm::vec3(0.0f, 1.0f, 0.0f)));
-}

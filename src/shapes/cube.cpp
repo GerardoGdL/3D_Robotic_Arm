@@ -64,10 +64,3 @@ CubeGeometry makeCube()
 
     return cube;
 }
-
-void rotate(Mesh& mesh, float radians)
-{
-    mesh.applyTransform(glm::rotate(glm::mat4(1.0f),
-                                    radians,
-                                    glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f))));
-}
