@@ -5,10 +5,11 @@
 #include "../graphics/mesh.h"
 #include "cube.h"
 
-Vertex makeVertex(const glm::vec3& position, const glm::vec2& texCoord)
+Vertex makeVertex(const glm::vec3& position, const glm::vec3& normal, const glm::vec2& texCoord)
 {
     Vertex vertex;
     vertex.position = position;
+    vertex.normal = normal;
     vertex.texCoord = texCoord;
     return vertex;
 }
@@ -23,35 +24,35 @@ CubeGeometry makeCube()
     CubeGeometry cube;
     cube.vertices = {
         // Front
-        makeVertex({-1.0f, -1.0f,  1.0f}, bottomLeft),
-        makeVertex({ 1.0f, -1.0f,  1.0f}, bottomRight),
-        makeVertex({ 1.0f,  1.0f,  1.0f}, topRight),
-        makeVertex({-1.0f,  1.0f,  1.0f}, topLeft),
+        makeVertex({-1.0f, -1.0f,  1.0f}, {0.0f, 0.0f,  1.0f}, bottomLeft),
+        makeVertex({ 1.0f, -1.0f,  1.0f}, {0.0f, 0.0f,  1.0f}, bottomRight),
+        makeVertex({ 1.0f,  1.0f,  1.0f}, {0.0f, 0.0f,  1.0f}, topRight),
+        makeVertex({-1.0f,  1.0f,  1.0f}, {0.0f, 0.0f,  1.0f}, topLeft),
         // Back
-        makeVertex({ 1.0f, -1.0f, -1.0f}, bottomLeft),
-        makeVertex({-1.0f, -1.0f, -1.0f}, bottomRight),
-        makeVertex({-1.0f,  1.0f, -1.0f}, topRight),
-        makeVertex({ 1.0f,  1.0f, -1.0f}, topLeft),
+        makeVertex({-1.0f, -1.0f,  -1.0f}, {0.0f, 0.0f,  -1.0f}, bottomLeft),
+        makeVertex({ 1.0f, -1.0f,  -1.0f}, {0.0f, 0.0f,  -1.0f}, bottomRight),
+        makeVertex({ 1.0f,  1.0f,  -1.0f}, {0.0f, 0.0f,  -1.0f}, topRight),
+        makeVertex({-1.0f,  1.0f,  -1.0f}, {0.0f, 0.0f,  -1.0f}, topLeft),
         // Right
-        makeVertex({ 1.0f, -1.0f,  1.0f}, bottomLeft),
-        makeVertex({ 1.0f, -1.0f, -1.0f}, bottomRight),
-        makeVertex({ 1.0f,  1.0f, -1.0f}, topRight),
-        makeVertex({ 1.0f,  1.0f,  1.0f}, topLeft),
+        makeVertex({ 1.0f, -1.0f,  1.0f}, {1.0f, 0.0f,  0.0f}, bottomLeft),
+        makeVertex({ 1.0f, -1.0f, -1.0f}, {1.0f, 0.0f,  0.0f}, bottomRight),
+        makeVertex({ 1.0f,  1.0f, -1.0f}, {1.0f, 0.0f,  0.0f}, topRight),
+        makeVertex({ 1.0f,  1.0f,  1.0f}, {1.0f, 0.0f,  0.0f}, topLeft),
         // Left
-        makeVertex({-1.0f, -1.0f, -1.0f}, bottomLeft),
-        makeVertex({-1.0f, -1.0f,  1.0f}, bottomRight),
-        makeVertex({-1.0f,  1.0f,  1.0f}, topRight),
-        makeVertex({-1.0f,  1.0f, -1.0f}, topLeft),
+        makeVertex({-1.0f, -1.0f,  1.0f}, {-1.0f, 0.0f,  0.0f}, bottomLeft),
+        makeVertex({-1.0f, -1.0f, -1.0f}, {-1.0f, 0.0f,  0.0f}, bottomRight),
+        makeVertex({-1.0f,  1.0f, -1.0f}, {-1.0f, 0.0f,  0.0f}, topRight),
+        makeVertex({-1.0f,  1.0f,  1.0f}, {-1.0f, 0.0f,  0.0f}, topLeft),
         // Top
-        makeVertex({-1.0f,  1.0f,  1.0f}, bottomLeft),
-        makeVertex({ 1.0f,  1.0f,  1.0f}, bottomRight),
-        makeVertex({ 1.0f,  1.0f, -1.0f}, topRight),
-        makeVertex({-1.0f,  1.0f, -1.0f}, topLeft),
+        makeVertex({-1.0f,  1.0f,  1.0f}, {0.0f, 1.0f,  0.0f}, bottomLeft),
+        makeVertex({ 1.0f,  1.0f,  1.0f}, {0.0f, 1.0f,  0.0f}, bottomRight),
+        makeVertex({ 1.0f,  1.0f, -1.0f}, {0.0f, 1.0f,  0.0f}, topRight),
+        makeVertex({-1.0f,  1.0f, -1.0f}, {0.0f, 1.0f,  0.0f}, topLeft),
         // Bottom
-        makeVertex({-1.0f, -1.0f, -1.0f}, bottomLeft),
-        makeVertex({ 1.0f, -1.0f, -1.0f}, bottomRight),
-        makeVertex({ 1.0f, -1.0f,  1.0f}, topRight),
-        makeVertex({-1.0f, -1.0f,  1.0f}, topLeft)
+        makeVertex({-1.0f, -1.0f, -1.0f}, {0.0f, -1.0f,  0.0f}, bottomLeft),
+        makeVertex({ 1.0f, -1.0f, -1.0f}, {0.0f, -1.0f,  0.0f}, bottomRight),
+        makeVertex({ 1.0f, -1.0f,  1.0f}, {0.0f, -1.0f,  0.0f}, topRight),
+        makeVertex({-1.0f, -1.0f,  1.0f}, {0.0f, -1.0f,  0.0f}, topLeft)
     };
 
     cube.indices.reserve(36);
