@@ -98,8 +98,8 @@ CylinderGeometry makeCylinder(unsigned int slices, float height, float radius)
 
     for (int i = 0; i < slices; i++) {
         cylinder.bottomIndices.push_back(0);
-        cylinder.bottomIndices.push_back(i + 2);
         cylinder.bottomIndices.push_back(i + 1);
+        cylinder.bottomIndices.push_back(i + 2);
     }
 
     // Top cap
@@ -130,8 +130,8 @@ CylinderGeometry makeCylinder(unsigned int slices, float height, float radius)
 
     for (int i = 0; i < slices; i++) {
         cylinder.topIndices.push_back(0);
-        cylinder.topIndices.push_back(i + 1);
         cylinder.topIndices.push_back(i + 2);
+        cylinder.topIndices.push_back(i + 1);
     }
 
     return cylinder;
