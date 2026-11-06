@@ -16,8 +16,15 @@
 #include "mesh.h"
 
 struct CylinderGeometry {
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
+    // By separating the indeces of each face, we can assign them to different meshes with different materials and shaders.
+    std::vector<Vertex> sideVertices;
+    std::vector<unsigned int> sideIndices;
+
+    std::vector<Vertex> topVertices;
+    std::vector<unsigned int> topIndices;
+
+    std::vector<Vertex> bottomVertices;
+    std::vector<unsigned int> bottomIndices;
     float height;
     float radius;
 };
@@ -33,8 +40,6 @@ CylinderGeometry makeCylinder(unsigned int slices, float height, float radius)
 {
     constexpr float pi = 3.14159265358979323846f;
     CylinderGeometry cylinder;
-    cylinder.vertices.reserve(static_cast<std::size_t>(4 * slices + 6));
-    cylinder.indices.reserve(static_cast<std::size_t>(12 * slices));
 
     cylinder.height = height;
     cylinder.radius = radius;
@@ -58,20 +63,21 @@ CylinderGeometry makeCylinder(unsigned int slices, float height, float radius)
         float u = static_cast<float>(slice) / slices;
 
         // Bottom vertex
-        cylinder.vertices.push_back({
-            glm::vec3(x, -halfHeight, z),
-            normal,
-            glm::vec2(u, 0.0f),
-            glm::vec4(1.0f)
-        });
+        Vertex bottom;
+        bottom.position = glm::vec3(x, -halfHeight, z);
+        bottom.normal = normal;
+        bottom.texCoord = glm::vec2(u, 0.0f);
+
+        cylinder.sideVertices.push_back(bottom);
 
         // Top vertex
-        cylinder.vertices.push_back({
-            glm::vec3(x, halfHeight, z),
-            normal,
-            glm::vec2(u, 1.0f),
-            glm::vec4(1.0f)
-        });
+        Vertex top;
+        top.position = glm::vec3(x, halfHeight, z);
+        top.normal = normal;
+        top.texCoord = glm::vec2(u, 1.0f);
+        top.color = glm::vec4(1.0f);
+
+        cylinder.sideVertices.push_back(top);
     }
 
     // Now we need to create the indices for the side triangles
@@ -83,72 +89,56 @@ CylinderGeometry makeCylinder(unsigned int slices, float height, float radius)
         unsigned int nextBottom = bottom + 2;
         unsigned int nextTop = bottom + 3;
 
-        cylinder.indices.insert(
-            cylinder.indices.end(),
-            {
-                bottom, top, nextBottom,
-                nextBottom, top, nextTop
-            }
-        );
+        cylinder.sideIndices.push_back(bottom);
+        cylinder.sideIndices.push_back(top);
+        cylinder.sideIndices.push_back(nextBottom);
+
+        cylinder.sideIndices.push_back(nextBottom);
+        cylinder.sideIndices.push_back(top);
+        cylinder.sideIndices.push_back(nextTop);
     }
 
     // Now we need to create the top and bottom caps
     // Bottom cap
-    unsigned int bottomCenter =
-    static_cast<unsigned int>(cylinder.vertices.size());
 
-    cylinder.vertices.push_back({
-        glm::vec3(0.0f, -halfHeight, 0.0f),
-        glm::vec3(0.0f, -1.0f, 0.0f),
-        glm::vec2(0.5f),
-        glm::vec4(1.0f)
-    });
+    Vertex bottomCenter;
+    bottomCenter.position = glm::vec3(0.0f, -halfHeight, 0.0f);
+    bottomCenter.normal = glm::vec3(0.0f, -1.0f, 0.0f);
+    bottomCenter.texCoord = glm::vec2(0.5f, 0.5f);
 
-    unsigned int bottomStart =
-        static_cast<unsigned int>(cylinder.vertices.size());
+    cylinder.bottomVertices.push_back(bottomCenter);
 
-    for (unsigned int i = 0; i <= slices; ++i)
-    {
+    for (int i = 0; i <= slices; i++) {
         float theta = 2.0f * pi * i / slices;
 
-        float x = radius * std::cos(theta);
-        float z = radius * std::sin(theta);
+        float x = radius * cos(theta);
+        float z = radius * sin(theta);
 
-        cylinder.vertices.push_back({
-            glm::vec3(x, -halfHeight, z),
-            glm::vec3(0.0f, -1.0f, 0.0f),
-            glm::vec2(
-                0.5f + 0.5f * std::cos(theta),
-                0.5f + 0.5f * std::sin(theta)
-            ),
-            glm::vec4(1.0f)
-        });
+        Vertex vertex;
+        vertex.position = glm::vec3(x, -halfHeight, z);
+        vertex.normal = glm::vec3(0.0f, -1.0f, 0.0f);
+
+        vertex.texCoord = glm::vec2(
+            0.5f + 0.5f * cos(theta),
+            0.5f + 0.5f * sin(theta)
+        );
+
+        cylinder.bottomVertices.push_back(vertex);
     }
 
-    for (unsigned int i = 0; i < slices; ++i) {
-        cylinder.indices.insert(
-            cylinder.indices.end(),
-            {
-                bottomCenter,
-                bottomStart + i,
-                bottomStart + i + 1
-            }
-        );
+    for (int i = 0; i < slices; i++) {
+        cylinder.bottomIndices.push_back(0);
+        cylinder.bottomIndices.push_back(i + 2);
+        cylinder.bottomIndices.push_back(i + 1);
     }
 
     // Top cap
-    unsigned int topCenter =
-    static_cast<unsigned int>(cylinder.vertices.size());
+    Vertex topCenter;
+    topCenter.position = glm::vec3(0.0f, halfHeight, 0.0f);
+    topCenter.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+    topCenter.texCoord = glm::vec2(0.5f, 0.5f);
 
-    cylinder.vertices.push_back({
-        glm::vec3(0.0f, halfHeight, 0.0f),
-        glm::vec3(0.0f, 1.0f, 0.0f),
-        glm::vec2(0.5f),
-        glm::vec4(1.0f)
-    });
-
-    unsigned int topStart =
-        static_cast<unsigned int>(cylinder.vertices.size());
+    cylinder.topVertices.push_back(topCenter);
 
     for (unsigned int i = 0; i <= slices; ++i)
     {
@@ -157,26 +147,21 @@ CylinderGeometry makeCylinder(unsigned int slices, float height, float radius)
         float x = radius * std::cos(theta);
         float z = radius * std::sin(theta);
 
-        cylinder.vertices.push_back({
-            glm::vec3(x, halfHeight, z),
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec2(
-                0.5f + 0.5f * std::cos(theta),
-                0.5f + 0.5f * std::sin(theta)
-            ),
-            glm::vec4(1.0f)
-        });
+        Vertex vertex;
+        vertex.position = glm::vec3(x, halfHeight, z);
+        vertex.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+        vertex.texCoord = glm::vec2(
+            0.5f + 0.5f * cos(theta),
+            0.5f + 0.5f * sin(theta)
+        );
+
+        cylinder.topVertices.push_back(vertex);
     }
 
-    for (unsigned int i = 0; i < slices; ++i) {
-        cylinder.indices.insert(
-            cylinder.indices.end(),
-            {
-                topCenter,
-                topStart + i + 1,
-                topStart + i
-            }
-        );
+    for (int i = 0; i < slices; i++) {
+        cylinder.topIndices.push_back(0);
+        cylinder.topIndices.push_back(i + 1);
+        cylinder.topIndices.push_back(i + 2);
     }
 
     return cylinder;
@@ -184,8 +169,8 @@ CylinderGeometry makeCylinder(unsigned int slices, float height, float radius)
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2) {
-        std::cerr << "Usage: cylinder <cylinder-texture-image>\n";
+    if (argc != 3) {
+        std::cerr << "Usage: cylinder <cap-texture> <side-texture>\n";
         return 2;
     }
 
@@ -217,17 +202,31 @@ int main(int argc, char* argv[])
         glEnable(GL_DEPTH_TEST);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-        CylinderGeometry cylinder = makeCylinder(16, 0.7, 1.1f);
+        CylinderGeometry cylinder = makeCylinder(16, 0.7, 0.5f);
         const std::filesystem::path shaderDirectory =
             std::filesystem::absolute(argv[0]).parent_path() / "shaders";
         Material material;
         material.lightingEnabled = false;
-        Mesh mesh(cylinder.vertices,
-                  cylinder.indices,
-                  (shaderDirectory / "mesh.vert").string(),
-                  (shaderDirectory / "mesh.frag").string(),
-                  argv[1],
-                  material);
+        Mesh sideMesh(cylinder.sideVertices,
+                      cylinder.sideIndices,
+                      (shaderDirectory / "mesh.vert").string(),
+                      (shaderDirectory / "mesh.frag").string(),
+                      argv[2],
+                      material);
+
+        Mesh topMesh(cylinder.topVertices,
+                     cylinder.topIndices,
+                     (shaderDirectory / "mesh.vert").string(),
+                     (shaderDirectory / "mesh.frag").string(),
+                     argv[1],
+                     material);
+
+        Mesh bottomMesh(cylinder.bottomVertices,
+                        cylinder.bottomIndices,
+                        (shaderDirectory / "mesh.vert").string(),
+                        (shaderDirectory / "mesh.frag").string(),
+                        argv[1],
+                        material);
 
         constexpr float fieldOfView = glm::radians(45.0f);
         const glm::vec3 cameraTarget(0.0f, 0.0f, 0.0f);
@@ -247,9 +246,13 @@ int main(int argc, char* argv[])
                                static_cast<GLsizei>(resized->size.y));
                 } else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
                     if (keyPressed->code == sf::Keyboard::Key::Left) {
-                        rotate(mesh, glm::radians(5.0f));
+                        rotate(sideMesh, glm::radians(5.0f));
+                        rotate(topMesh, glm::radians(5.0f));
+                        rotate(bottomMesh, glm::radians(5.0f));
                     } else if (keyPressed->code == sf::Keyboard::Key::Right) {
-                        rotate(mesh, glm::radians(-5.0f));
+                        rotate(sideMesh, glm::radians(-5.0f));
+                        rotate(topMesh, glm::radians(-5.0f));
+                        rotate(bottomMesh, glm::radians(-5.0f));
                     } else if (keyPressed->code == sf::Keyboard::Key::Escape) {
                         window.close();
                     }
@@ -261,7 +264,9 @@ int main(int argc, char* argv[])
             }
 
             const float dt = frameClock.restart().asSeconds();
-            rotate(mesh, rotationSpeed * dt);
+            rotate(sideMesh, rotationSpeed * dt);
+            rotate(topMesh, rotationSpeed * dt);
+            rotate(bottomMesh, rotationSpeed * dt);
 
             const sf::Vector2u size = window.getSize();
             glViewport(0, 0, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y));
@@ -283,7 +288,9 @@ int main(int argc, char* argv[])
                                                            cameraDistance + cylinderRadius * 2.0f);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            mesh.draw(view, projection);
+            sideMesh.draw(view, projection);
+            topMesh.draw(view, projection);
+            bottomMesh.draw(view, projection);
             window.display();
         }
     } catch (const std::exception& error) {
