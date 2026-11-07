@@ -19,11 +19,11 @@
 
 int main(int argc, char* argv[])
 {
-    // robotic_arm <side-cylinder-texture> <caps-texture> <joint-texture>
+    // robotic_arm <arm-linkage-texture> <base-top-texture>
 
-    if (argc != 3 && argc != 4) {
+    if (argc != 3) {
         std::cerr
-            << "Usage: robotic_arm <side-cylinder-texture> <caps-texture> <joint-texture>\n";
+            << "Usage: robotic_arm <arm-linkage-texture> <base-top-texture>\n";
 
         return 2;
     }
@@ -76,10 +76,6 @@ int main(int argc, char* argv[])
         const std::string sideTexture = argv[1];
         const std::string capTexture = argv[2];
 
-        // If no separate joint texture is supplied, reuse the cap texture.
-        const std::string jointTexture =
-            argc == 4 ? argv[3] : "";
-
         Material material;
         material.lightingEnabled = true;
 
@@ -93,7 +89,7 @@ int main(int argc, char* argv[])
             fragmentShader,
             sideTexture,
             capTexture,
-            jointTexture,
+            "",
             material
         );
 
