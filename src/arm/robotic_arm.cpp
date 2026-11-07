@@ -98,7 +98,7 @@ void RoboticArm::buildArm() {
         baseRadius
     );
 
-    attachCylinder(*root, base);
+    attachCylinder(*root, base, "", capTexturePath, "");
 
     // Upper arm
     CylinderGeometry upperArm = makeCylinder(
@@ -107,7 +107,7 @@ void RoboticArm::buildArm() {
         upperArmRadius
     );
 
-    attachCylinder(upperArmNode, upperArm);
+    attachCylinder(upperArmNode, upperArm, sideTexturePath, "", "");
 
     // Forearm
     CylinderGeometry forearm = makeCylinder(
@@ -116,7 +116,7 @@ void RoboticArm::buildArm() {
         forearmRadius
     );
 
-    attachCylinder(forearmNode, forearm);
+    attachCylinder(forearmNode, forearm, sideTexturePath, "", "");
 
     SphereGeometry sphere = makeSphere(32, 16);
 
@@ -124,7 +124,7 @@ void RoboticArm::buildArm() {
     Mesh& jointMesh = createMesh(
         sphere.vertices,
         sphere.indices,
-        jointTexturePath
+        ""
     );
 
     shoulderNode->meshes.push_back(&jointMesh);
@@ -137,7 +137,7 @@ void RoboticArm::buildArm() {
     Mesh& gripperMesh = createMesh(
         cube.vertices,
         cube.indices,
-        jointTexturePath
+        ""
     );
 
     // Palm
@@ -161,7 +161,7 @@ void RoboticArm::buildArm() {
         stemRadius
     );
 
-    // Create the cylinder meshes without textures.
+    // Create the cylinder meshes
     Mesh& stemSideMesh = createMesh(
         stem.sideVertices,
         stem.sideIndices,
@@ -469,7 +469,10 @@ Mesh& RoboticArm::createMesh(
 
 void RoboticArm::attachCylinder(
     ArmNode& node,
-    const CylinderGeometry& geometry
+    const CylinderGeometry& geometry,
+    const std::string& sideTexture,
+    const std::string& topTexture,
+    const std::string& bottomTexture
 ) {
     // Curved side
     node.meshes.push_back(&createMesh(

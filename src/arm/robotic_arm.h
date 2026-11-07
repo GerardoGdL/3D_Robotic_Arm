@@ -108,6 +108,9 @@ private:
 
     void attachCylinder(
         ArmNode& node,
-        const CylinderGeometry& geometry
+        const CylinderGeometry& geometry,
+        const std::string& sideTexture,
+        const std::string& topTexture,
+        const std::string& bottomTexture
     );
 };
