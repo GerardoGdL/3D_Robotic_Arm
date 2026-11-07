@@ -33,7 +33,15 @@ void main() {
                                          reflect(-lightDirection, normalDirection)),
                                      0.0),
                                 materialShininess);
-    vec3 litColor = baseColor * (materialAmbient + materialDiffuse * diffuseStrength)
-        + materialSpecular * specularStrength;
+    vec3 ambient = materialAmbient * vertexColor.rgb;
+    
+    // Texture-modulated diffuse component
+    vec3 diffuseColor = materialDiffuse * baseColor;
+    vec3 diffuse = diffuseColor * diffuseStrength;
+
+    // Specular component
+    vec3 specular = materialSpecular * specularStrength;
+
+    vec3 litColor = ambient + diffuse + specular;
     outputColor = vec4(litColor, vertexColor.a * texel.a);
 }
