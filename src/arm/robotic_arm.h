@@ -22,7 +22,7 @@ public:
         const Material& material
     );
 
-    void update(float dt);
+    void update();
     void draw(
         const glm::mat4& view,
         const glm::mat4& projection

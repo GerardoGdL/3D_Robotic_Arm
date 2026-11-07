@@ -102,7 +102,7 @@ void RoboticArm::buildArm() {
 
     // Upper arm
     CylinderGeometry upperArm = makeCylinder(
-        32,
+        16,
         upperArmLength,
         upperArmRadius
     );
@@ -111,7 +111,7 @@ void RoboticArm::buildArm() {
 
     // Forearm
     CylinderGeometry forearm = makeCylinder(
-        32,
+        16,
         forearmLength,
         forearmRadius
     );
@@ -429,10 +429,8 @@ void RoboticArm::draw(
     }
 }
 
-void RoboticArm::update(float dt) {
-    // Update joint angles here when you implement input.
-    // dt is the elapsed frame time.
-
+// dt is the elapsed frame time.
+void RoboticArm::update() {
     updateTransforms();
 }
 
