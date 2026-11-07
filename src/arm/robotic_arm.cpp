@@ -430,7 +430,7 @@ void RoboticArm::draw(
 }
 
 // dt is the elapsed frame time.
-void RoboticArm::update() {
+void RoboticArm::update(float dt) {
     updateTransforms();
 }
 
