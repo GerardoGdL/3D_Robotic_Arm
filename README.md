@@ -15,4 +15,4 @@ Once compiled, the program needs **TWO** arguments:
 
 This creates the "robotic_arm.exe" executable, which is then ran with the texture arguments:
 
-.\build\bin\Debug\robotic_arm.exe .\assets\texture_arm_linkage.png .\assets\texture_base_top.png
+.\build\bin\Debug\robotic_arm.exe ./assets/texture_arm_linkage.png ./assets/texture_base_top.png
